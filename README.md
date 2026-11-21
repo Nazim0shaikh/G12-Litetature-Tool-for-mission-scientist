@@ -49,3 +49,7 @@ npm run build
 
 The frontend displays passage IDs, source metadata, and the exact supporting
 text. Citation existence and semantic support are reported separately.
+
+See [architecture.md](architecture.md) for system boundaries and component
+details. See [evaluation/README.md](evaluation/README.md) for metric definitions
+and the development/test split policy.
