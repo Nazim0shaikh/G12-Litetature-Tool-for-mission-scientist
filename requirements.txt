@@ -1,0 +1,10 @@
+chromadb
+datasets
+fastapi
+numpy
+pydantic
+sentence-transformers
+httpx
+pytest
+tqdm
+uvicorn
