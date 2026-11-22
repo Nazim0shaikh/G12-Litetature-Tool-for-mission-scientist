@@ -13,7 +13,7 @@ jobs:
         with:
           python-version: "3.13"
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install pytest fastapi httpx pydantic
+      - run: python -m pip install pytest fastapi httpx pydantic numpy huggingface_hub
       - run: python -m pytest tests -q
 
   frontend:
