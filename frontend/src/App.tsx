@@ -15,6 +15,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
+import { LandingPage } from "./landing";
 
 type Citation = {
   passage_id: string;
@@ -58,6 +59,7 @@ function App() {
   const [error, setError] = useState("");
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const askQuestion = async (value = question) => {
     const trimmed = value.trim();
@@ -86,14 +88,18 @@ function App() {
     if (answer) await navigator.clipboard.writeText(answer.answer);
   };
 
+  if (!chatOpen) {
+    return <LandingPage onOpenChat={() => setChatOpen(true)} />;
+  }
+
   return (
     <div className="app-shell">
       <aside className={`sidebar ${mobileNavOpen ? "sidebar-open" : ""}`}>
-        <div className="brand-row">
+        <button className="brand-row" onClick={() => setChatOpen(false)} aria-label="Return to landing page">
           <div className="brand-mark"><FlaskConical size={18} strokeWidth={2.5} /></div>
           <span>Fieldwork</span>
-          <button className="icon-button mobile-close" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation"><X size={18} /></button>
-        </div>
+        </button>
+        <button className="sidebar-close" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation"><X size={18} /></button>
         <button className="new-query" onClick={() => { setAnswer(null); setQuestion(""); setError(""); setMobileNavOpen(false); }}>
           <Sparkles size={16} /> New research query
         </button>
