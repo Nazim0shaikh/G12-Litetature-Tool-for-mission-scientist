@@ -12,7 +12,10 @@ class CorpusService:
 
     def __init__(self, corpus_path: str | Path = "data/corpus") -> None:
         if str(corpus_path) == "data/corpus":
-            runtime = os.getenv("RUNTIME_ASSETS_DIR", "/var/data" if os.getenv("RENDER") else "runtime-assets")
+            runtime = os.getenv(
+                "RUNTIME_ASSETS_DIR",
+                "/data" if os.getenv("SPACE_ID") else "runtime-assets",
+            )
             corpus_path = Path(runtime) / "data" / "corpus"
         self.corpus_path = str(corpus_path)
         self._dataset: Any = None

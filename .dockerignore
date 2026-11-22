@@ -1,0 +1,16 @@
+.env
+.env.*
+.git
+.gitignore
+.pytest_cache
+__pycache__
+*.py[cod]
+frontend
+venv
+.venv
+data
+vector_db
+bm25_database.db
+qasper-runtime-assets.zip
+*.db
+*.zip

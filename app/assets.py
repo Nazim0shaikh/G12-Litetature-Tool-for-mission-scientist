@@ -14,9 +14,10 @@ def ensure_runtime_assets() -> Path:
     """Ensure the corpus assets exist and return their deployment root."""
 
     runtime_root = Path(
-        os.getenv("RUNTIME_ASSETS_DIR", "/var/data")
-        if os.getenv("RENDER", "")
-        else os.getenv("RUNTIME_ASSETS_DIR", "runtime-assets")
+        os.getenv(
+            "RUNTIME_ASSETS_DIR",
+            "/data" if os.getenv("SPACE_ID") else "runtime-assets",
+        )
     )
     runtime_root.mkdir(parents=True, exist_ok=True)
 

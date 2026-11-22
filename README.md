@@ -73,3 +73,25 @@ The first backend request downloads the archive, extracts it into the persistent
 directory, and normalizes the corpus path. Subsequent requests reuse extracted
 files. Keep both Hugging Face and OpenRouter tokens as hosting secrets, never in
 Git or the frontend.
+
+## Hugging Face Spaces backend
+
+1. Create a Hugging Face Space with the **Docker** SDK.
+2. Push this repository to the Space.
+3. Add these Space Secrets:
+   - `HF_DATASET_REPO=nazim001/Corpus_for_fieldSearch`
+   - `HF_ASSET_FILE=qasper-runtime-assets.zip`
+   - `HF_TOKEN=<private-dataset-read-token>`
+   - `LLM_PROVIDER=openai_compatible`
+   - `LLM_BASE_URL=https://openrouter.ai/api/v1`
+   - `LLM_API_KEY=<openrouter-api-key>`
+   - `LLM_MODEL=<openrouter-model-id>`
+   - `RUNTIME_ASSETS_DIR=/data`
+   - `CORS_ORIGINS=<deployed-vercel-origin>`
+4. Ensure the Space exposes port `7860`.
+5. Deploy and open `/api/v1/health`.
+
+The Docker image downloads the private runtime archive on the first retrieval
+or answer request. `/data` persists on supported Space storage tiers. The
+first request is allowed to be slow because it downloads and extracts the
+indexes.
