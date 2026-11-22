@@ -11,6 +11,7 @@ data/
 vector_db/
 bm25_database.db
 *.db
+*.zip
 
 frontend/node_modules/
 frontend/dist/

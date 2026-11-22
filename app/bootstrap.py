@@ -10,12 +10,17 @@ from app.services.rag_pipeline import RAGPipeline
 from app.services.refusal_handler import RefusalHandler
 from app.services.retrieval_service import RetrievalService
 from app.services.reranker import PassageReranker
+from app.assets import ensure_runtime_assets
 
 
 def build_pipeline() -> RAGPipeline:
     """Load the configured models and connect the persisted indexes."""
 
-    retrieval = RetrievalService.from_paths()
+    runtime_root = ensure_runtime_assets()
+    retrieval = RetrievalService.from_paths(
+        db_path=runtime_root / "vector_db",
+        bm25_path=runtime_root / "bm25_database.db",
+    )
     reranker = PassageReranker.from_model_name()
     llm_service = LLMService()
     return RAGPipeline(

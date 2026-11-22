@@ -4,12 +4,16 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
+import os
 
 
 class CorpusService:
     """Load the corpus only when a paper lookup is requested."""
 
     def __init__(self, corpus_path: str | Path = "data/corpus") -> None:
+        if str(corpus_path) == "data/corpus":
+            runtime = os.getenv("RUNTIME_ASSETS_DIR", "/var/data" if os.getenv("RENDER") else "runtime-assets")
+            corpus_path = Path(runtime) / "data" / "corpus"
         self.corpus_path = str(corpus_path)
         self._dataset: Any = None
 
@@ -17,6 +21,10 @@ class CorpusService:
         if not paper_id.strip():
             raise ValueError("paper_id must not be empty")
         if self._dataset is None:
+            if not Path(self.corpus_path).is_dir():
+                from app.assets import ensure_runtime_assets
+
+                ensure_runtime_assets()
             from datasets import load_from_disk
 
             self._dataset = load_from_disk(self.corpus_path)["train"]

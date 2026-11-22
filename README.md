@@ -53,3 +53,23 @@ text. Citation existence and semantic support are reported separately.
 See [architecture.md](architecture.md) for system boundaries and component
 details. See [evaluation/README.md](evaluation/README.md) for metric definitions
 and the development/test split policy.
+
+## Deploy runtime assets
+
+Runtime indexes are downloaded from a private Hugging Face Dataset instead of
+being stored in Git.
+
+Set these backend environment variables:
+
+```env
+HF_DATASET_REPO=nazim001/Corpus_for_fieldSearch
+HF_ASSET_FILE=qasper-runtime-assets.zip
+HF_TOKEN=your_hugging_face_read_token
+RUNTIME_ASSETS_DIR=/var/data
+RENDER=1
+```
+
+The first backend request downloads the archive, extracts it into the persistent
+directory, and normalizes the corpus path. Subsequent requests reuse extracted
+files. Keep both Hugging Face and OpenRouter tokens as hosting secrets, never in
+Git or the frontend.
