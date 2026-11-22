@@ -607,6 +607,168 @@ h1 span { color: #8a8a83; }
   background: #dff3eb;
 }
 
+.method-heading > p {
+  max-width: 360px;
+  margin: 18px 0 0;
+  color: #7c7c74;
+  font-size: 13px;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.landing-pipeline {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 92px 32px 108px;
+  border-top: 1px solid #dfdfd8;
+}
+
+.pipeline-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 40px;
+  margin-bottom: 34px;
+}
+
+.pipeline-heading h2,
+.architecture-heading h2 {
+  margin: 12px 0 0;
+  font-size: 42px;
+  line-height: 1.06;
+  letter-spacing: -0.06em;
+}
+
+.pipeline-heading > p {
+  max-width: 430px;
+  margin: 0 0 3px;
+  color: #7c7c74;
+  font-size: 13px;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.pipeline-flow {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) 18px repeat(1, minmax(130px, 1fr)) 18px repeat(1, minmax(130px, 1fr)) 18px repeat(1, minmax(130px, 1fr)) 18px repeat(1, minmax(130px, 1fr));
+  align-items: center;
+  border-top: 1px solid #d5d5ce;
+  border-bottom: 1px solid #d5d5ce;
+}
+
+.pipeline-stage {
+  min-height: 210px;
+  padding: 18px 14px;
+  border-right: 1px solid #d5d5ce;
+}
+
+.pipeline-stage:last-of-type {
+  border-right: 0;
+}
+
+.pipeline-index {
+  float: right;
+  color: #aaa99f;
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+}
+
+.pipeline-stage > svg {
+  margin-top: 34px;
+  color: #20a47d;
+}
+
+.pipeline-stage h3 {
+  margin: 14px 0 7px;
+  font-size: 15px;
+  letter-spacing: -0.04em;
+}
+
+.pipeline-stage p {
+  margin: 0;
+  color: #7c7c74;
+  font-size: 11px;
+  line-height: 1.58;
+  text-wrap: pretty;
+}
+
+.pipeline-arrow {
+  color: #9e9e96;
+  justify-self: center;
+}
+
+.landing-architecture {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 92px 32px 112px;
+  border-top: 1px solid #dfdfd8;
+}
+
+.architecture-heading {
+  margin-bottom: 34px;
+}
+
+.architecture-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.architecture-card {
+  min-height: 286px;
+  padding: 22px;
+  border: 1px solid #dadad3;
+  border-radius: 9px;
+  background: #fbfbf8;
+  box-shadow: 0 10px 28px rgba(38, 38, 30, 0.025);
+}
+
+.architecture-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #20a47d;
+}
+
+.architecture-card-top span {
+  color: #9a9a92;
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.06em;
+}
+
+.architecture-card h3 {
+  margin: 44px 0 10px;
+  font-size: 19px;
+  letter-spacing: -0.05em;
+}
+
+.architecture-card p {
+  min-height: 78px;
+  margin: 0;
+  color: #777770;
+  font-size: 12px;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.architecture-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 18px;
+}
+
+.architecture-tags span {
+  padding: 6px 8px;
+  border: 1px solid #deded7;
+  border-radius: 4px;
+  color: #777770;
+  background: #f4f4f0;
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+}
+
 @media (max-width: 980px) {
   .landing-links {
     display: none;
@@ -627,6 +789,30 @@ h1 span { color: #8a8a83; }
 
   .landing-method {
     grid-template-columns: 1fr;
+  }
+
+  .pipeline-heading {
+    align-items: start;
+  }
+
+  .pipeline-flow {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .pipeline-arrow {
+    display: none;
+  }
+
+  .pipeline-stage {
+    min-height: 226px;
+  }
+
+  .architecture-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .architecture-card:last-child {
+    grid-column: 1 / -1;
   }
 }
 
@@ -689,6 +875,52 @@ h1 span { color: #8a8a83; }
 
   .landing-method {
     padding: 68px 20px;
+  }
+
+  .pipeline-heading,
+  .architecture-heading {
+    align-items: start;
+  }
+
+  .pipeline-heading {
+    flex-direction: column;
+  }
+
+  .pipeline-heading h2,
+  .architecture-heading h2 {
+    font-size: 36px;
+  }
+
+  .landing-pipeline,
+  .landing-architecture {
+    padding: 68px 20px;
+  }
+
+  .pipeline-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .pipeline-stage {
+    min-height: 172px;
+    border-right: 0;
+    border-bottom: 1px solid #d5d5ce;
+  }
+
+  .pipeline-stage:last-of-type {
+    border-bottom: 0;
+  }
+
+  .pipeline-stage > svg {
+    margin-top: 22px;
+  }
+
+  .architecture-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .architecture-card,
+  .architecture-card:last-child {
+    grid-column: auto;
   }
 
   .method-heading h2 {
