@@ -13,9 +13,10 @@ import {
 
 type LandingPageProps = {
   onOpenChat: () => void;
+  onOpenPresentation: () => void;
 };
 
-export function LandingPage({ onOpenChat }: LandingPageProps) {
+export function LandingPage({ onOpenChat, onOpenPresentation }: LandingPageProps) {
   const scrollToHowItWorks = () => {
     document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -32,6 +33,15 @@ export function LandingPage({ onOpenChat }: LandingPageProps) {
           <a href="#pipeline-title">Pipeline</a>
           <a href="#architecture">Architecture</a>
           <a href="#evidence">Evidence</a>
+          <a
+            href="?view=presentation"
+            onClick={(event) => {
+              event.preventDefault();
+              onOpenPresentation();
+            }}
+          >
+            Teach the system
+          </a>
         </nav>
         <button className="landing-nav-action" onClick={onOpenChat}>
           Open research chat <ArrowUpRight size={16} />
@@ -58,6 +68,16 @@ export function LandingPage({ onOpenChat }: LandingPageProps) {
                 See how it works
               </button>
             </div>
+            <a
+              className="landing-presentation-link"
+              href="?view=presentation"
+              onClick={(event) => {
+                event.preventDefault();
+                onOpenPresentation();
+              }}
+            >
+              <BookOpen size={15} /> Open the teaching presentation <ArrowUpRight size={14} />
+            </a>
             <div className="landing-proof">
               <ShieldCheck size={15} />
               <span>Evidence grounded</span>

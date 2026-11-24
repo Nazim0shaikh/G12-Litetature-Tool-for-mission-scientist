@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowUpRight,
   BookOpen,
@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { LandingPage } from "./landing";
+import { PresentationPage } from "./presentation";
 
 type Citation = {
   passage_id: string;
@@ -60,6 +61,34 @@ function App() {
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [presentationOpen, setPresentationOpen] = useState(
+    () => new URLSearchParams(window.location.search).get("view") === "presentation",
+  );
+
+  useEffect(() => {
+    const syncPresentationView = () => {
+      setPresentationOpen(
+        new URLSearchParams(window.location.search).get("view") === "presentation",
+      );
+    };
+    window.addEventListener("popstate", syncPresentationView);
+    return () => window.removeEventListener("popstate", syncPresentationView);
+  }, []);
+
+  const openPresentation = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("view", "presentation");
+    window.history.pushState(null, "", url);
+    setPresentationOpen(true);
+  };
+
+  const closePresentation = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("view");
+    url.hash = "";
+    window.history.replaceState(null, "", url);
+    setPresentationOpen(false);
+  };
 
   const askQuestion = async (value = question) => {
     const trimmed = value.trim();
@@ -102,8 +131,25 @@ function App() {
     await navigator.clipboard.writeText(copiedAnswer);
   };
 
+  if (presentationOpen) {
+    return (
+      <PresentationPage
+        onBack={closePresentation}
+        onOpenChat={() => {
+          closePresentation();
+          setChatOpen(true);
+        }}
+      />
+    );
+  }
+
   if (!chatOpen) {
-    return <LandingPage onOpenChat={() => setChatOpen(true)} />;
+    return (
+      <LandingPage
+        onOpenChat={() => setChatOpen(true)}
+        onOpenPresentation={openPresentation}
+      />
+    );
   }
 
   return (
