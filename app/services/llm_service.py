@@ -22,6 +22,10 @@ class LLMProviderError(LLMServiceError):
     """Raised when the provider rejects or cannot process a request."""
 
 
+class LLMInvalidResponseError(LLMProviderError):
+    """Raised when a successful provider response has an invalid shape."""
+
+
 @dataclass(frozen=True)
 class LLMConfig:
     """Runtime configuration loaded from environment variables."""
@@ -141,9 +145,13 @@ class LLMService:
             payload: Any = json.loads(response_body)
             content = payload["choices"][0]["message"]["content"]
         except (ValueError, KeyError, IndexError, TypeError) as exc:
-            raise LLMProviderError("LLM response did not contain message content") from exc
+            raise LLMInvalidResponseError(
+                "LLM response did not contain message content"
+            ) from exc
         if not isinstance(content, str) or not content.strip():
-            raise LLMProviderError("LLM response contained empty message content")
+            raise LLMInvalidResponseError(
+                "LLM response contained empty message content"
+            )
         return content
 
     @staticmethod

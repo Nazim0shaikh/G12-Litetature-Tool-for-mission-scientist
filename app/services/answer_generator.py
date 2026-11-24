@@ -8,7 +8,7 @@ import re
 from typing import Any, Sequence
 
 from app.services.context_builder import ContextResult
-from app.services.llm_service import LLMService
+from app.services.llm_service import LLMInvalidResponseError, LLMService
 
 
 SYSTEM_PROMPT = """You are an AI research assistant specializing in scientific literature.
@@ -67,20 +67,39 @@ class AnswerGenerator:
                 insufficient_evidence=True,
             )
 
-        raw_response = self.llm_service.complete(SYSTEM_PROMPT, context.context)
-        answer = self._parse_response(raw_response)
         available_ids = {passage.passage_id for passage in context.passages}
-        invalid_ids = [
-            citation.passage_id
-            for citation in answer.citations
-            if citation.passage_id not in available_ids
-        ]
-        if invalid_ids:
-            raise AnswerGenerationError(
-                "response cited passages outside supplied evidence: "
-                + ", ".join(invalid_ids)
-            )
-        return answer
+        retry_prompt = (
+            SYSTEM_PROMPT
+            + "\nYour previous response was invalid. Regenerate the answer from "
+            "the supplied evidence and return only complete, valid JSON matching "
+            "the required schema."
+        )
+
+        for attempt in range(2):
+            try:
+                raw_response = self.llm_service.complete(
+                    SYSTEM_PROMPT if attempt == 0 else retry_prompt,
+                    context.context,
+                )
+                answer = self._parse_response(raw_response)
+                invalid_ids = [
+                    citation.passage_id
+                    for citation in answer.citations
+                    if citation.passage_id not in available_ids
+                ]
+                if invalid_ids:
+                    raise AnswerGenerationError(
+                        "response cited passages outside supplied evidence: "
+                        + ", ".join(invalid_ids)
+                    )
+                return answer
+            except (AnswerGenerationError, LLMInvalidResponseError) as exc:
+                if attempt == 1:
+                    raise AnswerGenerationError(
+                        "LLM could not produce a valid evidence-grounded response after retry"
+                    ) from exc
+
+        raise AnswerGenerationError("LLM response validation failed")
 
     @staticmethod
     def _parse_response(raw_response: str) -> GeneratedAnswer:

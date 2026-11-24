@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 from app.config import AppConfig
 from app.main import create_app
 from app.services.corpus_service import CorpusService
+from app.services.answer_generator import AnswerGenerationError
 
 
 def test_health_and_config_do_not_require_initialized_pipeline() -> None:
@@ -34,6 +35,26 @@ def test_question_validation_rejects_empty_input() -> None:
     response = client.post("/api/v1/ask", json={"question": ""})
 
     assert response.status_code == 422
+
+
+def test_ask_returns_cors_enabled_502_for_generation_failure() -> None:
+    class FailingPipeline:
+        def answer_question(self, question: str):
+            raise AnswerGenerationError("malformed model response")
+
+    client = TestClient(create_app(pipeline=FailingPipeline()))
+
+    response = client.post(
+        "/api/v1/ask",
+        json={"question": "What is retrieval?"},
+        headers={"Origin": "http://127.0.0.1:5173"},
+    )
+
+    assert response.status_code == 502
+    assert response.json()["detail"] == (
+        "The answer provider returned an unusable response. Please retry."
+    )
+    assert response.headers["access-control-allow-origin"] == "http://127.0.0.1:5173"
 
 
 def test_paper_endpoint_returns_lazy_corpus_result() -> None:

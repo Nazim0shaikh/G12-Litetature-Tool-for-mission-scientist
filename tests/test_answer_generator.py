@@ -4,6 +4,7 @@ import pytest
 
 from app.services.answer_generator import AnswerGenerationError, AnswerGenerator
 from app.services.context_builder import ContextResult
+from app.services.llm_service import LLMInvalidResponseError
 from app.services.retrieval_service import RetrievedPassage
 
 
@@ -58,15 +59,50 @@ def test_generator_accepts_fenced_json() -> None:
 
 
 def test_generator_rejects_citation_outside_selected_evidence() -> None:
-    with pytest.raises(AnswerGenerationError, match="outside supplied evidence"):
+    with pytest.raises(AnswerGenerationError, match="after retry"):
         AnswerGenerator(
             FakeLLM(response(citations=[{"passage_id": "fake", "claim": "unsupported"}]))
         ).generate(context())
 
 
 def test_generator_rejects_invalid_json() -> None:
-    with pytest.raises(AnswerGenerationError, match="valid JSON"):
+    with pytest.raises(AnswerGenerationError, match="after retry"):
         AnswerGenerator(FakeLLM("not json")).generate(context())
+
+
+def test_generator_retries_invalid_json_once_and_accepts_repaired_answer() -> None:
+    class RetryingLLM:
+        def __init__(self):
+            self.prompts = []
+
+        def complete(self, system_prompt: str, user_prompt: str) -> str:
+            self.prompts.append(system_prompt)
+            return "not json" if len(self.prompts) == 1 else response()
+
+    llm = RetryingLLM()
+    result = AnswerGenerator(llm).generate(context())
+
+    assert result.status == "answered"
+    assert len(llm.prompts) == 2
+    assert "previous response was invalid" in llm.prompts[1]
+
+
+def test_generator_retries_empty_provider_content() -> None:
+    class RetryingLLM:
+        def __init__(self):
+            self.calls = 0
+
+        def complete(self, system_prompt: str, user_prompt: str) -> str:
+            self.calls += 1
+            if self.calls == 1:
+                raise LLMInvalidResponseError("empty content")
+            return response()
+
+    llm = RetryingLLM()
+    result = AnswerGenerator(llm).generate(context())
+
+    assert result.status == "answered"
+    assert llm.calls == 2
 
 
 def test_generator_returns_explicit_refusal_without_calling_llm() -> None:

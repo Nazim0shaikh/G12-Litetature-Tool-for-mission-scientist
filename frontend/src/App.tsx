@@ -74,7 +74,12 @@ function App() {
         body: JSON.stringify({ question: trimmed }),
       });
       if (!response.ok) {
-        throw new Error(response.status === 503 ? "The research service is not ready yet." : "We could not answer that question.");
+        const message = response.status === 503
+          ? "The research service is not ready yet."
+          : response.status === 502
+            ? "The answer provider returned an unusable response. Please try again."
+            : "We could not answer that question.";
+        throw new Error(message);
       }
       setAnswer((await response.json()) as AnswerResponse);
     } catch (requestError) {

@@ -17,6 +17,8 @@ from app.schemas.api import (
 from app.services.llm_service import LLMConfig, LLMService
 from app.services.rag_pipeline import RAGPipeline
 from app.services.corpus_service import CorpusService
+from app.services.answer_generator import AnswerGenerationError
+from app.services.llm_service import LLMServiceError
 
 
 def create_app(
@@ -66,6 +68,11 @@ def create_app(
             return app.state.pipeline.answer_question(request.question)
         except (ValueError, TypeError) as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
+        except (AnswerGenerationError, LLMServiceError) as exc:
+            raise HTTPException(
+                status_code=502,
+                detail="The answer provider returned an unusable response. Please retry.",
+            ) from exc
 
     @app.post("/api/v1/retrieve")
     def retrieve(request: QuestionRequest) -> dict[str, Any]:
