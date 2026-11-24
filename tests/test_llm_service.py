@@ -54,6 +54,27 @@ def test_complete_retries_transient_status_with_exponential_backoff() -> None:
     assert delays == [0.1, 0.2]
 
 
+def test_complete_sends_json_schema_and_disables_thinking_when_configured() -> None:
+    calls = []
+    response_format = {
+        "type": "json_schema",
+        "json_schema": {"name": "answer", "strict": True, "schema": {"type": "object"}},
+    }
+
+    def transport(endpoint, headers, body, timeout):
+        calls.append(json.loads(body))
+        return 200, b'{"choices":[{"message":{"content":"{}"}}]}'
+
+    LLMService(config(disable_thinking=True), transport=transport).complete(
+        "system",
+        "user",
+        response_format=response_format,
+    )
+
+    assert calls[0]["response_format"] == response_format
+    assert calls[0]["chat_template_kwargs"] == {"enable_thinking": False}
+
+
 def test_complete_reports_missing_configuration() -> None:
     service = LLMService(LLMConfig(model="model"))
 

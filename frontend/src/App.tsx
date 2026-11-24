@@ -90,7 +90,16 @@ function App() {
   };
 
   const copyAnswer = async () => {
-    if (answer) await navigator.clipboard.writeText(answer.answer);
+    if (!answer) return;
+    const sources = getTraceableCitations(answer).map(
+      ({ citation }, index) =>
+        `[${index + 1}] ${citation.claim} — ${citation.paper_title}, ${citation.section_name}, ${citation.passage_id}`,
+    );
+    const copiedAnswer = [
+      answer.answer,
+      sources.length > 0 ? `Supporting citations:\n${sources.join("\n")}` : "",
+    ].filter(Boolean).join("\n\n");
+    await navigator.clipboard.writeText(copiedAnswer);
   };
 
   if (!chatOpen) {
@@ -169,12 +178,22 @@ function LoadingState() {
 
 function AnswerView({ answer, onCopy, onSelectEvidence }: { answer: AnswerResponse; onCopy: () => void; onSelectEvidence: (evidence: Evidence) => void }) {
   const statusLabel = answer.status === "answered" ? "Supported answer" : answer.status.replaceAll("_", " ");
+  const citations = getTraceableCitations(answer);
   return <section className="answer-section">
     <div className="answer-header"><div><span className="section-label">RESEARCH RESULT</span><h2>{statusLabel}</h2></div><button className="copy-button" onClick={onCopy}><Copy size={15} /> Copy answer</button></div>
     <div className={`answer-card ${answer.status !== "answered" ? "answer-card-caution" : ""}`}><div className="answer-status"><span className="status-dot" /> {answer.status === "answered" ? "Evidence supports this response" : "Evidence is limited"}</div><p>{answer.answer}</p><div className="answer-meta"><span><Clock3 size={14} /> Retrieved just now</span><span><FileText size={14} /> {answer.evidence.length} passages reviewed</span></div></div>
+    {citations.length > 0 && <section className="citation-section" aria-label="Supporting citations"><div className="evidence-heading"><div><span className="section-label">SUPPORTING CITATIONS</span><h3>Claims linked to source passages</h3></div><span className="evidence-count">{citations.length} citations</span></div><div className="citation-list">{citations.map(({ citation, evidence }, index) => <button className="citation-row" key={`${citation.passage_id}-${index}`} onClick={() => onSelectEvidence(evidence)}><span className="citation-number">[{index + 1}]</span><span className="citation-content"><span className="citation-claim">{citation.claim}</span><strong>{citation.paper_title}</strong><span className="citation-source">{citation.section_name} <span className="bullet">·</span> {citation.passage_id} <span className="citation-open">View passage</span></span></span><ArrowUpRight size={16} /></button>)}</div></section>}
     <div className="evidence-heading"><div><span className="section-label">SUPPORTING EVIDENCE</span><h3>Passages behind this answer</h3></div><span className="evidence-count">{answer.evidence.length} sources</span></div>
     <div className="evidence-list">{answer.evidence.map((evidence, index) => <button className="evidence-row" key={evidence.passage_id} onClick={() => onSelectEvidence(evidence)}><span className="evidence-index">0{index + 1}</span><span className="evidence-main"><strong>{evidence.title}</strong><span>{evidence.section_name} <span className="bullet">·</span> {evidence.passage_id}</span><p>{evidence.text}</p></span><ArrowUpRight size={17} /></button>)}</div>
   </section>;
+}
+
+function getTraceableCitations(answer: AnswerResponse) {
+  return answer.citations.flatMap((citation) => {
+    if (!citation.citation_valid) return [];
+    const evidence = answer.evidence.find((item) => item.passage_id === citation.passage_id);
+    return evidence ? [{ citation, evidence }] : [];
+  });
 }
 
 function EvidenceDrawer({ evidence, onClose }: { evidence: Evidence; onClose: () => void }) {

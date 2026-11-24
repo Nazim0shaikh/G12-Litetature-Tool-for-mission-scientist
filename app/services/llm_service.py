@@ -39,6 +39,7 @@ class LLMConfig:
     timeout: float = 60.0
     max_retries: int = 2
     retry_backoff: float = 0.5
+    disable_thinking: bool = False
 
     @classmethod
     def from_env(cls) -> "LLMConfig":
@@ -52,6 +53,8 @@ class LLMConfig:
             timeout=float(os.getenv("LLM_TIMEOUT", "60")),
             max_retries=int(os.getenv("LLM_MAX_RETRIES", "2")),
             retry_backoff=float(os.getenv("LLM_RETRY_BACKOFF", "0.5")),
+            disable_thinking=os.getenv("LLM_DISABLE_THINKING", "false").strip().lower()
+            in {"1", "true", "yes", "on"},
         )
 
     def validate(self) -> None:
@@ -93,7 +96,13 @@ class LLMService:
             return False
         return bool(self.config.api_key)
 
-    def complete(self, system_prompt: str, user_prompt: str) -> str:
+    def complete(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        *,
+        response_format: dict[str, Any] | None = None,
+    ) -> str:
         """Generate one response and return the provider's text content."""
 
         self.config.validate()
@@ -112,6 +121,10 @@ class LLMService:
                 {"role": "user", "content": user_prompt},
             ],
         }
+        if response_format is not None:
+            payload["response_format"] = response_format
+        if self.config.disable_thinking:
+            payload["chat_template_kwargs"] = {"enable_thinking": False}
         body = json.dumps(payload).encode("utf-8")
         headers = {
             "Authorization": f"Bearer {self.config.api_key}",

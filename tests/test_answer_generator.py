@@ -39,17 +39,22 @@ def response(**overrides: object) -> str:
 class FakeLLM:
     def __init__(self, output: str):
         self.output = output
+        self.response_formats = []
 
-    def complete(self, system_prompt: str, user_prompt: str) -> str:
+    def complete(self, system_prompt: str, user_prompt: str, *, response_format=None) -> str:
         assert "only the supplied research passages" in system_prompt
+        self.response_formats.append(response_format)
         return self.output
 
 
 def test_generator_validates_answer_and_evidence_citations() -> None:
-    result = AnswerGenerator(FakeLLM(response())).generate(context())
+    llm = FakeLLM(response())
+    result = AnswerGenerator(llm).generate(context())
 
     assert result.status == "answered"
     assert result.citations[0].passage_id == "paper_00001"
+    assert llm.response_formats[0]["type"] == "json_schema"
+    assert llm.response_formats[0]["json_schema"]["strict"] is True
 
 
 def test_generator_accepts_fenced_json() -> None:
@@ -75,7 +80,7 @@ def test_generator_retries_invalid_json_once_and_accepts_repaired_answer() -> No
         def __init__(self):
             self.prompts = []
 
-        def complete(self, system_prompt: str, user_prompt: str) -> str:
+        def complete(self, system_prompt: str, user_prompt: str, *, response_format=None) -> str:
             self.prompts.append(system_prompt)
             return "not json" if len(self.prompts) == 1 else response()
 
@@ -92,7 +97,7 @@ def test_generator_retries_empty_provider_content() -> None:
         def __init__(self):
             self.calls = 0
 
-        def complete(self, system_prompt: str, user_prompt: str) -> str:
+        def complete(self, system_prompt: str, user_prompt: str, *, response_format=None) -> str:
             self.calls += 1
             if self.calls == 1:
                 raise LLMInvalidResponseError("empty content")

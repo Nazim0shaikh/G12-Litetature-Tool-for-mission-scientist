@@ -29,6 +29,51 @@ Return only valid JSON with this shape:
   "insufficient_evidence": false
 }"""
 
+ANSWER_RESPONSE_FORMAT = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "grounded_answer",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "answered",
+                        "insufficient_evidence",
+                        "partially_answered",
+                        "conflicting_evidence",
+                    ],
+                },
+                "answer": {"type": "string"},
+                "citations": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "passage_id": {"type": "string"},
+                            "claim": {"type": "string"},
+                        },
+                        "required": ["passage_id", "claim"],
+                        "additionalProperties": False,
+                    },
+                },
+                "reasoning_summary": {"type": "string"},
+                "insufficient_evidence": {"type": "boolean"},
+            },
+            "required": [
+                "status",
+                "answer",
+                "citations",
+                "reasoning_summary",
+                "insufficient_evidence",
+            ],
+            "additionalProperties": False,
+        },
+    },
+}
+
 
 class AnswerGenerationError(RuntimeError):
     """Raised when an LLM response cannot be made into a valid answer."""
@@ -80,6 +125,7 @@ class AnswerGenerator:
                 raw_response = self.llm_service.complete(
                     SYSTEM_PROMPT if attempt == 0 else retry_prompt,
                     context.context,
+                    response_format=ANSWER_RESPONSE_FORMAT,
                 )
                 answer = self._parse_response(raw_response)
                 invalid_ids = [

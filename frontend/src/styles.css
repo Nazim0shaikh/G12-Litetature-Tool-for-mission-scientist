@@ -98,6 +98,17 @@ h1 span { color: #8a8a83; }
 .answer-card > p { max-width: 700px; margin: 17px 0 26px; color: #252522; font-size: 20px; line-height: 1.5; letter-spacing: -.03em; text-wrap: pretty; }
 .answer-meta { display: flex; gap: 20px; color: #7da697; font-size: 10px; }
 .answer-meta span { display: flex; align-items: center; gap: 6px; }
+.citation-section { margin: -34px 0 42px; }
+.citation-list { border-top: 1px solid #d9d9d3; }
+.citation-row { width: 100%; padding: 15px 4px; display: grid; grid-template-columns: 34px 1fr 18px; gap: 10px; text-align: left; border: 0; border-bottom: 1px solid #d9d9d3; background: transparent; color: #242420; }
+.citation-row:hover { background: #edede8; }
+.citation-number { color: #159571; font-family: "DM Mono", monospace; font-size: 11px; }
+.citation-content { display: grid; gap: 6px; }
+.citation-claim { color: #45453f; font-size: 13px; line-height: 1.55; }
+.citation-content strong { font-size: 12px; }
+.citation-source { color: #92928b; font-family: "DM Mono", monospace; font-size: 10px; }
+.citation-row > svg { margin-top: 2px; color: #a1a19a; }
+.citation-open { margin-left: 8px; color: #159571; }
 .evidence-heading { margin-bottom: 17px; }
 .evidence-heading h3 { font-size: 20px; }
 .evidence-count { color: #95958d; font-family: "DM Mono", monospace; font-size: 10px; }

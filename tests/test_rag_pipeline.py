@@ -33,7 +33,7 @@ class FakeRerankerModel:
 
 
 class FakeLLM:
-    def complete(self, system_prompt, user_prompt):
+    def complete(self, system_prompt, user_prompt, *, response_format=None):
         return (
             '{"status":"answered","answer":"Accuracy improved.",'
             '"citations":[{"passage_id":"paper_00001","claim":"Accuracy improved."}],'

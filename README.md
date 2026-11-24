@@ -71,7 +71,7 @@ RENDER=1
 
 The first backend request downloads the archive, extracts it into the persistent
 directory, and normalizes the corpus path. Subsequent requests reuse extracted
-files. Keep both Hugging Face and OpenRouter tokens as hosting secrets, never in
+files. Keep Hugging Face and LLM provider tokens as hosting secrets, never in
 Git or the frontend.
 
 ## Hugging Face Spaces backend
@@ -83,9 +83,10 @@ Git or the frontend.
    - `HF_ASSET_FILE=qasper-runtime-assets.zip`
    - `HF_TOKEN=<private-dataset-read-token>`
    - `LLM_PROVIDER=openai_compatible`
-   - `LLM_BASE_URL=https://openrouter.ai/api/v1`
-   - `LLM_API_KEY=<openrouter-api-key>`
-   - `LLM_MODEL=<openrouter-model-id>`
+   - `LLM_BASE_URL=https://integrate.api.nvidia.com/v1`
+   - `LLM_API_KEY=<nvidia-build-api-key>`
+   - `LLM_MODEL=nvidia/nemotron-3.5-super-vl-120b-a12b`
+   - `LLM_DISABLE_THINKING=true` (keeps concise structured answers within the token limit)
    - `RUNTIME_ASSETS_DIR=/data`
    - `CORS_ORIGINS=<deployed-vercel-origin>`
 4. Ensure the Space exposes port `7860`.
